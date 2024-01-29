@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch GCC ARM Compiler version
+        id: lastversion
         uses: dvershinin/lastversion-action@main
         with:
           repository: 'https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack'

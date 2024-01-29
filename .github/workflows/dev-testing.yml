@@ -1,0 +1,11 @@
+name: create-dev-build
+on:
+  push:
+    branches-ignore:
+      - at91bootstrap-3.x
+jobs:
+  get_toolchain:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install latestversion
+        uses: actions/setup-python@v5

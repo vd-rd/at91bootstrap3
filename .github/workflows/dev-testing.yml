@@ -7,5 +7,5 @@ jobs:
   get_toolchain:
     runs-on: ubuntu-latest
     steps:
-      - run: pip install latestversion
+      - run: pip install lastversion
 

@@ -7,8 +7,11 @@ jobs:
   get_toolchain:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v5
+      - name: Fetch GCC ARM Compiler version
+        uses: dvershinin/lastversion-action@main
         with:
-          cache: 'pip'
-          python-version: '3.12'
-      - run: pip install lastversion
+          repository: 'xpack-dev-tools/arm-none-eabi-gcc-xpack'
+          branch: 'main'
+      - name: Store GCC ARM Compiler version
+        run: echo "Latest version is ${{ steps.lastversion.outputs.last_version }}"
+

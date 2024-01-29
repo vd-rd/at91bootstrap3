@@ -10,8 +10,7 @@ jobs:
       - name: Fetch GCC ARM Compiler version
         uses: dvershinin/lastversion-action@main
         with:
-          repository: 'xpack-dev-tools/arm-none-eabi-gcc-xpack'
-          branch: 'main'
+          repository: 'https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack'
       - name: Store GCC ARM Compiler version
         run: echo "Latest version is ${{ steps.lastversion.outputs.last_version }}"
 

@@ -69,4 +69,8 @@
 #include "sama5d3_linea.h"
 #endif
 
+#ifdef CONFIG_GLASNOSTMK3
+#include "glasnostmk3.h"
+#endif
+
 #endif

@@ -1,0 +1,16 @@
+name: create-dev-build
+on:
+  push:
+    branches-ignore:
+      - main
+jobs:
+  get_toolchain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch GCC ARM Compiler version
+        id: lastversion
+        uses: dvershinin/lastversion-action@main
+        with:
+          repository: 'https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack'
+      - name: Store GCC ARM Compiler version
+        run: echo "Latest version is ${{ steps.lastversion.outputs.last_version }}"

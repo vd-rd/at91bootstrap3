@@ -26,10 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: determine-configs
     continue-on-error: true
-    if: env.configs != '[]'
     strategy:
       matrix:
-        config: ${{ fromJSON(env.configs) }}
+        config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
     steps:
       - name: Set Up ARM Toolchain
         uses: carlosperate/arm-none-eabi-gcc-action@v1

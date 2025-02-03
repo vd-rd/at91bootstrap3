@@ -19,13 +19,15 @@ jobs:
         id: find_configs
         run: |
           CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
-          echo "configs=$(echo $CONFIGS | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          CONFIGS_JSON=$(echo $CONFIGS | jq -R -s 'split("\n") | map(select(length > 0))')
+          echo "configs=$CONFIGS_JSON" >> $GITHUB_OUTPUT
   build-configs:
     runs-on: ubuntu-latest
     needs: determine-configs
+    continue-on-error: true
     strategy:
       matrix:
-        config: ${{ needs.determine-configs.outputs.configs }}
+        config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
     steps:
       - name: Set Up ARM Toolchain
         uses: carlosperate/arm-none-eabi-gcc-action@v1

@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [glasnost-9g10, glasnost-9g20]
+        target: [glasnost_9g10, glasnost_9g20]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         target: [glasnost-9g10, glasnost-9g20]
-        config: []
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -25,7 +24,7 @@ jobs:
       - name: Find Available Configs
         id: find_configs
         run: |
-          CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*.defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
+          CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
           echo "configs=$(echo $CONFIGS | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Build Configs

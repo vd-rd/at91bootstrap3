@@ -6,26 +6,31 @@ on:
       - main  # Exclude main branch, run on all others
 
 jobs:
-  build:
+  determine-configs:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         target: [glasnost_9g10, glasnost_9g20]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set Up ARM Toolchain
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          version: '14.2.Rel1'
-
+      
       - name: Find Available Configs
         id: find_configs
         run: |
           CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
-          echo "configs=$(echo $CONFIGS | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "configs=$(echo $CONFIGS | tr '\n' ' ')" >> $GITHUB_OUTPUT
+  build-configs:
+    runs-on: ubuntu-latest
+    needs: determine-configs
+    strategy:
+      matrix:
+        config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
+    steps:
+      - name: Set Up ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          version: '14.2.Rel1'
 
       - name: Build Configs
         run: |

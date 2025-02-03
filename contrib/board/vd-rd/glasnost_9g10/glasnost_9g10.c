@@ -44,7 +44,7 @@
 #include "sdramc.h"
 #include "timer.h"
 #include "watchdog.h"
-#include "glasnostmk3.h"
+#include "glasnost_9g10.h"
 
 static inline void matrix_writel(const unsigned int value, unsigned int reg)
 {

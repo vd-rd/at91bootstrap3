@@ -25,7 +25,7 @@ jobs:
     needs: determine-configs
     strategy:
       matrix:
-        config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
+        config: ${{ needs.determine-configs.outputs.configs }}
     steps:
       - name: Set Up ARM Toolchain
         uses: carlosperate/arm-none-eabi-gcc-action@v1

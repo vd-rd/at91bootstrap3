@@ -1,0 +1,53 @@
+---
+name: Edge Build
+
+on:
+  push:
+    branches-ignore:
+      - main  # Exclude main branch, run on all others
+
+jobs:
+  determine-configs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [glasnost_9g10, glasnost_9g20]
+    outputs:
+      configs: ${{ steps.find_configs.outputs.configs }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Find Available Configs
+        id: find_configs
+        run: |
+          CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
+          CONFIGS_JSON=$(echo "$CONFIGS" | jq -R -s 'split("\n") | map(select(length > 0))' | jq -c '.' || echo '[]')
+          echo "configs=$CONFIGS_JSON" >> "$GITHUB_OUTPUT"
+
+  build-configs:
+    runs-on: ubuntu-latest
+    needs: determine-configs
+    continue-on-error: true
+    strategy:
+      matrix:
+        config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
+    steps:
+      - name: Set Up ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          version: '14.2.Rel1'
+
+      - name: Build Configs
+        run: |
+          for CONFIG in ${{ matrix.config }}; do
+            echo "Building $CONFIG for ${{ matrix.target }}..."
+            make CROSS_COMPILE=arm-none-eabi- ${CONFIG}_uboot_defconfig
+            make CROSS_COMPILE=arm-none-eabi-
+          done
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootloader-${{ matrix.target }}-${{ matrix.config }}
+          path: binaries/boot.bin

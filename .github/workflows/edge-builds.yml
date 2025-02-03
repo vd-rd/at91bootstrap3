@@ -1,3 +1,4 @@
+---
 name: Edge Build
 
 on:
@@ -11,6 +12,8 @@ jobs:
     strategy:
       matrix:
         target: [glasnost_9g10, glasnost_9g20]
+    outputs:
+      configs: ${{ steps.find_configs.outputs.configs }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -20,7 +23,7 @@ jobs:
         run: |
           CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
           CONFIGS_JSON=$(echo "$CONFIGS" | jq -R -s 'split("\n") | map(select(length > 0))' | jq -c '.' || echo '[]')
-          echo "configs=$CONFIGS_JSON" >> "$GITHUB_ENV"
+          echo "configs=$CONFIGS_JSON" >> "$GITHUB_OUTPUT"
 
   build-configs:
     runs-on: ubuntu-latest

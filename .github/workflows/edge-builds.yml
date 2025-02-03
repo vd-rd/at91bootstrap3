@@ -19,13 +19,14 @@ jobs:
         id: find_configs
         run: |
           CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
-          CONFIGS_JSON=$(echo $CONFIGS | jq -R -s 'split("\n") | map(select(length > 0))' | jq -c '.')  # Compact JSON
+          CONFIGS_JSON=$(echo "$CONFIGS" | jq -R -s 'split("\n") | map(select(length > 0))' | jq -c '.' || echo '[]')
           echo "configs=$CONFIGS_JSON" >> "$GITHUB_OUTPUT"
 
   build-configs:
     runs-on: ubuntu-latest
     needs: determine-configs
     continue-on-error: true
+    if: needs.determine-configs.outputs.configs != '[]'
     strategy:
       matrix:
         config: ${{ fromJSON(needs.determine-configs.outputs.configs) }}
@@ -37,7 +38,7 @@ jobs:
 
       - name: Build Configs
         run: |
-          for CONFIG in $configs; do
+          for CONFIG in ${{ matrix.config }}; do
             echo "Building $CONFIG for ${{ matrix.target }}..."
             make CROSS_COMPILE=arm-none-eabi- ${CONFIG}_uboot_defconfig
             make CROSS_COMPILE=arm-none-eabi-
@@ -46,5 +47,5 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bootloader-${{ matrix.target }}-${{ env.configs }}
+          name: bootloader-${{ matrix.target }}-${{ matrix.config }}
           path: binaries/boot.bin

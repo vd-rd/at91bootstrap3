@@ -76,6 +76,16 @@ static void at91_matrix_hw_init(void)
 	matrix_writel(reg, MATRIX_SCFG3);
 }
 
+static void led_hw_init(void)
+{
+	writel(((0x01 << 26) | (0x01 << 28) | (0x01 << 29)), AT91C_BASE_PIOA + PIO_ASR);
+	writel(((0x01 << 26) | (0x01 << 28) | (0x01 << 29)), AT91C_BASE_PIOA + PIO_PDR);
+
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
+	// enable red led
+	writel((0x01 << 29), AT91C_BASE_PIOA + PIO_OER);
+}
+
 static void initialize_dbgu(void)
 {
 	/* const struct pio_desc dbgu_pins[] = {
@@ -172,6 +182,10 @@ void hw_init(void)
 	/* Initialize dbgu */
 	initialize_dbgu();
 
+	/* Initialize led */
+	led_hw_init();
+
+
 #ifdef CONFIG_SDRAM
 	/* Initlialize sdram controller */
 	sdramc_init();
@@ -183,25 +197,6 @@ void hw_init(void)
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
-
-#ifdef CONFIG_DATAFLASH
-void at91_spi0_hw_init(void)
-{
-	/* Configure spi0 pins */
-	const struct pio_desc spi0_pins[] = {
-		{"MISO", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
-	pio_configure(spi0_pins);
-
-	pmc_enable_periph_clock(AT91C_ID_SPI0, PMC_PERIPH_CLK_DIVIDER_NA);
-}
-#endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 void at91_mci0_hw_init(void)

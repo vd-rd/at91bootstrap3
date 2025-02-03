@@ -19,8 +19,9 @@ jobs:
         id: find_configs
         run: |
           CONFIGS=$(ls contrib/board/vd-rd/${{ matrix.target }}/*_defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
-          CONFIGS_JSON=$(echo $CONFIGS | jq -R -s 'split("\n") | map(select(length > 0))')
-          echo "configs=$CONFIGS_JSON" >> $GITHUB_OUTPUT
+          CONFIGS_JSON=$(echo $CONFIGS | jq -R -s 'split("\n") | map(select(length > 0))' | jq -c '.')  # Compact JSON
+          echo "configs=$CONFIGS_JSON" >> "$GITHUB_OUTPUT"
+
   build-configs:
     runs-on: ubuntu-latest
     needs: determine-configs

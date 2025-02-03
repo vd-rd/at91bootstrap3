@@ -1,16 +1,42 @@
-name: create-dev-build
+name: edge-build-matrix
 on:
   push:
     branches-ignore:
       - main
 jobs:
-  get_toolchain:
+  get_toolchain_version:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        target: [glasnost-9g10, glasnost-9g20]
+    
     steps:
-      - name: Fetch GCC ARM Compiler version
-        id: lastversion
-        uses: dvershinin/lastversion-action@main
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
         with:
-          repository: 'https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack'
-      - name: Store GCC ARM Compiler version
-        run: echo "Latest version is ${{ steps.lastversion.outputs.last_version }}"
+          version: '14.2.Rel1'
+      
+      - name: Find Available Configs
+        id: find_configs
+        run: |
+          TARGET=${{ matrix.target }}
+          CONFIGS=$(ls contrib/board/vd-rd/$TARGET/*.defconfig | xargs -n 1 basename | sed 's/_uboot_defconfig//')
+          echo "configs=$(echo $CONFIGS | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Build Configs
+        run: |
+          for CONFIG in $configs; do
+            echo "Building $CONFIG for ${{ matrix.target }}..."
+            make CROSS_COMPILE=arm-none-eabi- ${CONFIG}_uboot_defconfig
+            make CROSS_COMPILE=arm-none-eabi-
+          done
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootloader-${{ matrix.target }}-${{ env.configs }}
+          path: binaries/boot.bin

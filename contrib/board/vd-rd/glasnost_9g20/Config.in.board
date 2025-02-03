@@ -1,0 +1,12 @@
+config	GLASNOST_9G20
+	bool "glasnost_9g20"
+	select AT91SAM9G20
+	select SDRAM
+	select ALLOW_SDCARD
+	select MCI_SLOTA
+	select ALLOW_CPU_CLK_400MHZ
+	select ALLOW_CRYSTAL_18_432MHZ
+	select SUPPORT_BUS_SPEED_100MHZ
+	select SUPPORT_BUS_SPEED_133MHZ
+	help
+	    Use the GLASNOST 9G20 (AT91SAM9G20) IoT board

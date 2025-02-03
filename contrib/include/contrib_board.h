@@ -73,4 +73,8 @@
 #include "glasnostmk3.h"
 #endif
 
+#ifdef CONFIG_GLASNOST_9G20
+#include "glasnost_9g20.h"
+#endif
+
 #endif
